@@ -6,6 +6,7 @@ import "./db";
 import {
   addItem,
   checkItem,
+  clearItems,
   deleteItem,
   editItem,
   getItems,
@@ -29,7 +30,7 @@ app.put("/edititem", editItem);
 
 app.delete("/deleteitem", deleteItem);
 
-app.delete("/clearitems", checkItem);
+app.delete("/clearitems", clearItems);
 
 app.listen(process.env.PORT, () => {
   console.log(`app is running on http://localhost:${process.env.PORT}/`);
