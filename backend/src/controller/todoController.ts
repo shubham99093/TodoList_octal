@@ -3,7 +3,10 @@ import { TodoList } from "../models/todoModel";
 
 export const getItems = async (req: Request, res: Response) => {
   try {
-    const data = await TodoList.find({});
+    const data = await TodoList.find({
+      //@ts-ignore
+      userId: req.userId,
+    });
 
     console.log(data);
 
@@ -19,6 +22,8 @@ export const addItem = async (req: Request, res: Response) => {
     const { todo } = req.body;
     const data = await TodoList.create({
       title: todo,
+      //@ts-ignore
+      userId: req.userId,
     });
     res.status(200).json(data);
   } catch (err) {
