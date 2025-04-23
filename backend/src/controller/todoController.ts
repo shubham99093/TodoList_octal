@@ -92,17 +92,21 @@ export const editItem = async (req: Request, res: Response) => {
 export const deleteItem = async (req: Request, res: Response) => {
   try {
     const { id } = req.body;
+    console.log(id);
     const todo = await TodoList.findById(id);
+    console.log(todo);
     if (!todo) {
       res.status(404).json({ msg: "todo list not found" });
       return;
     }
     //@ts-ignore
-    if (todo.userId !== req.userId) {
+    if (todo.userId.toString() !== req.userId) {
       res.status(403).json({ msg: "use have no access to delete this Item" });
+      return;
     }
     const data = await TodoList.findByIdAndDelete(id);
     res.status(200).json(data);
+    return;
   } catch (err) {
     console.log("Error Deleting data");
     res.status(500).json({ msg: "Error Deleting Data" });
