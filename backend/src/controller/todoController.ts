@@ -35,6 +35,16 @@ export const addItem = async (req: Request, res: Response) => {
 export const checkItem = async (req: Request, res: Response) => {
   try {
     const { id, check } = req.body;
+    const todo = await TodoList.findById(id);
+    if (!todo) {
+      res.status(404).json({ msg: "todo list not found" });
+      return;
+    }
+    //@ts-ignore
+    if (todo.userId !== req.userId) {
+      res.status(403).json({ msg: "use have no access to check this Item" });
+    }
+
     const data = await TodoList.findByIdAndUpdate(
       id,
       {
@@ -54,6 +64,15 @@ export const checkItem = async (req: Request, res: Response) => {
 export const editItem = async (req: Request, res: Response) => {
   try {
     const { id, todo } = req.body;
+    const todoDetail = await TodoList.findById(id);
+    if (!todoDetail) {
+      res.status(404).json({ msg: "todo list not found" });
+      return;
+    }
+    //@ts-ignore
+    if (todoDetail.userId !== req.userId) {
+      res.status(403).json({ msg: "use have no access to edit this Item" });
+    }
     const data = await TodoList.findByIdAndUpdate(
       id,
       {
@@ -73,6 +92,15 @@ export const editItem = async (req: Request, res: Response) => {
 export const deleteItem = async (req: Request, res: Response) => {
   try {
     const { id } = req.body;
+    const todo = await TodoList.findById(id);
+    if (!todo) {
+      res.status(404).json({ msg: "todo list not found" });
+      return;
+    }
+    //@ts-ignore
+    if (todo.userId !== req.userId) {
+      res.status(403).json({ msg: "use have no access to delete this Item" });
+    }
     const data = await TodoList.findByIdAndDelete(id);
     res.status(200).json(data);
   } catch (err) {
