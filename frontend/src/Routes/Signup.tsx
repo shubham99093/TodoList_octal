@@ -1,10 +1,9 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 
 const Signup = () => {
   const [user, setUser] = useState({ username: "", email: "", password: "" });
-  const navigate = useNavigate();
 
   const handleinput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -12,40 +11,45 @@ const Signup = () => {
   };
 
   const handleSubmit = async () => {
-    if (!user.username) {
-      toast.error("please Enter your Username");
-      return;
+    try {
+      if (!user.username) {
+        toast.error("please Enter your Username");
+        return;
+      }
+
+      if (!user.email) {
+        toast.error("please Enter your email");
+        return;
+      }
+
+      if (!user.password) {
+        toast.error("please Enter your password");
+        return;
+      }
+      const responce = await fetch("http://localhost:3000/signup", {
+        body: JSON.stringify({ ...user }),
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        method: "POST",
+      });
+
+      const result = await responce.json();
+      console.log(responce);
+      console.log(result);
+
+      if (responce.status !== 200) {
+        toast.error(result.msg);
+        return;
+      }
+
+      toast.success(result.msg);
+      setTimeout(() => window.location.reload(), 1000);
+    } catch (err) {
+      toast.error("somethis wrong");
+      console.log(err);
     }
-
-    if (!user.email) {
-      toast.error("please Enter your email");
-      return;
-    }
-
-    if (!user.password) {
-      toast.error("please Enter your password");
-      return;
-    }
-    const responce = await fetch("http://localhost:3000/signup", {
-      body: JSON.stringify({ ...user }),
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      method: "POST",
-    });
-
-    const result = await responce.json();
-    console.log(responce);
-    console.log(result);
-
-    if (responce.status !== 200) {
-      toast.error(result.msg);
-      return;
-    }
-
-    toast.success(result.msg);
-    setTimeout(() => window.location.reload(), 1000);
   };
 
   return (

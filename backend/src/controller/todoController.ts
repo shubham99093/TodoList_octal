@@ -70,7 +70,7 @@ export const editItem = async (req: Request, res: Response) => {
       return;
     }
     //@ts-ignore
-    if (todoDetail.userId !== req.userId) {
+    if (todoDetail.userId.toString() !== req.userId) {
       res.status(403).json({ msg: "use have no access to edit this Item" });
     }
     const data = await TodoList.findByIdAndUpdate(

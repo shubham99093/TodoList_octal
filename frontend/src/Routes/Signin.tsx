@@ -11,35 +11,40 @@ const Signin = () => {
   };
 
   const handleSubmit = async () => {
-    if (!user.email) {
-      toast.error("please Enter your email");
-      return;
+    try {
+      if (!user.email) {
+        toast.error("please Enter your email");
+        return;
+      }
+
+      if (!user.password) {
+        toast.error("please Enter your password");
+        return;
+      }
+      const responce = await fetch("http://localhost:3000/signin", {
+        body: JSON.stringify({ ...user }),
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        method: "POST",
+      });
+
+      const result = await responce.json();
+      console.log(responce);
+      console.log(result);
+
+      if (responce.status !== 200) {
+        toast.error(result.msg);
+        return;
+      }
+
+      toast.success(result.msg);
+      setTimeout(() => window.location.reload(), 1000);
+    } catch (err) {
+      toast.error("somethis wrong");
+      console.log(err);
     }
-
-    if (!user.password) {
-      toast.error("please Enter your password");
-      return;
-    }
-    const responce = await fetch("http://localhost:3000/signin", {
-      body: JSON.stringify({ ...user }),
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      method: "POST",
-    });
-
-    const result = await responce.json();
-    console.log(responce);
-    console.log(result);
-
-    if (responce.status !== 200) {
-      toast.error(result.msg);
-      return;
-    }
-
-    toast.success(result.msg);
-    setTimeout(() => window.location.reload(), 1000);
   };
 
   return (

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import ImageBox from "../components/ImageBox";
 import ListTodos from "../components/ListTodos";
@@ -8,6 +8,7 @@ import { useAuth } from "../context";
 function Home() {
   const [todo, setTodo] = useState("");
   const [todos, setTodos] = useState<ITodos[] | null>(null);
+  const buttonRef = useRef<HTMLButtonElement | null>(null);
   const [isEdit, SetIsEdit] = useState({
     clicked: false,
     todo: { title: "", _id: "" },
@@ -34,8 +35,18 @@ function Home() {
         setTodos(data);
       };
       getData();
-    } catch (err) {}
+    } catch (err) {
+      toast.error("somethis wrong");
+      console.log(err);
+    }
   }, []);
+
+  const handleInputKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      buttonRef.current?.click();
+    }
+  };
 
   const handleSubmit = async () => {
     try {
@@ -71,7 +82,8 @@ function Home() {
       setTodo("");
       toast.success("New Task Added To The List");
     } catch (err) {
-      console.log("somethis wrong");
+      console.log(err);
+      toast.error("somethis wrong");
     }
   };
 
@@ -101,7 +113,8 @@ function Home() {
 
       toast.error("Task Removed");
     } catch (err) {
-      console.log("somethis wrong");
+      console.log(err);
+      toast.error("somethis wrong");
     }
   };
 
@@ -132,7 +145,8 @@ function Home() {
       setTodo("");
       toast.success("Value Changed");
     } catch (err) {
-      console.log("somethis wrong");
+      console.log(err);
+      toast.error("somethis wrong");
     }
   };
 
@@ -170,7 +184,8 @@ function Home() {
       setTodo("");
       toast.success("Value Changed");
     } catch (err) {
-      console.log("somethis wrong");
+      console.log(err);
+      toast.error("somethis wrong");
     }
   };
 
@@ -192,7 +207,8 @@ function Home() {
       setTodos(null);
       toast.error("Empty List");
     } catch (err) {
-      console.log("somethis wrong");
+      console.log(err);
+      toast.error("somethis wrong");
     }
   };
   const handleLogout = async () => {
@@ -206,25 +222,28 @@ function Home() {
   return (
     <>
       <div>
-        <section className="py-12 px-4 m-[8rem_auto_0] bg-white w-[90vw] max-w-[35rem] rounded-sm transition-all duration-300 ease-linear shadow-[0_5px_15px_rgba(0,0,0,.2)]">
-          <div className="flex justify-between">
-            <div className="capitalize pb-1 font-semibold text-lg">
+        <section className=" px-4 m-[8rem_auto_0] bg-white w-[90vw] max-w-[35rem] rounded-sm transition-all duration-300 ease-linear shadow-[0_5px_15px_rgba(0,0,0,.2)]">
+          <div className="flex justify-between items-center py-4">
+            <div className="capitalize font-semibold text-lg">
               Welcome {user?.username}
             </div>
-            <div>
-              <button className="cursor-pointer" onClick={handleLogout}>
-                logout
-              </button>
-            </div>
+            <button
+              className="py-1 px-2 flex justify-center border cursor-pointer rounded-sm border-amber-500 text-white hover:bg-white bg-amber-500 hover:text-amber-500 transition-all duration-300 ease-linear"
+              onClick={handleLogout}
+            >
+              logout
+            </button>
           </div>
           <div className="flex flex-row">
             <input
               className="w-full px-4 py-2 text-[1.2rem] bg-[#f0f0f0] border-[1px] border-[#f4ae00] focus:outline-amber-500 rounded-tl-sm rounded-bl-sm "
               placeholder="Enter a new task to do"
               value={todo}
+              onKeyDown={handleInputKeyPress}
               onChange={(e) => setTodo(e.target.value)}
             ></input>
             <button
+              ref={buttonRef}
               className="p-1 flex-[0_0_5rem] justify-center items-center text-[.85rem] font-bold rounded-tr-sm rounded-br-sm bg-[#ffc727] tracking-[2px] capitalize hover:text-white transition-all duration-300 ease-linear"
               onClick={isEdit.clicked ? handleUpdate : handleSubmit}
             >

@@ -41,6 +41,13 @@ const signup = async (req: Request, res: Response) => {
       return;
     }
 
+    if (password.length < 6) {
+      res
+        .status(403)
+        .json({ msg: "Password must be at least 6 characters long" });
+      return;
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await User.create({
