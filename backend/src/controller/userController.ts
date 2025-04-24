@@ -4,14 +4,14 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import "dotenv/config";
 
-interface IUserReq extends Request {
+interface AuthRequest extends Request {
   userId: string;
 }
 
 const check = async (req: Request, res: Response) => {
   try {
-    //@ts-ignore
-    const user = await User.findById(req.userId).select("-password");
+    const { userId } = req as AuthRequest;
+    const user = await User.findById(userId).select("-password");
 
     if (!user) {
       res.status(404).json({ msg: "user not found" });
@@ -33,6 +33,7 @@ const signup = async (req: Request, res: Response) => {
       res
         .status(403)
         .json({ msg: "please Enter Username, email and password" });
+      return;
     }
 
     const existingUser = await User.findOne({ email });
@@ -78,6 +79,7 @@ const signin = async (req: Request, res: Response) => {
       res
         .status(403)
         .json({ msg: "please Enter Username, email and password" });
+      return;
     }
 
     const existingUser = await User.findOne({ email });
@@ -90,6 +92,7 @@ const signin = async (req: Request, res: Response) => {
 
     if (!match) {
       res.status(401).json({ msg: "Please Enter valid password" });
+      return;
     }
 
     const token = jwt.sign(
@@ -114,7 +117,7 @@ const logout = (req: Request, res: Response) => {
   res.clearCookie("token", {
     httpOnly: true,
     sameSite: "lax",
-    secure: false, // true in production
+    secure: false,
   });
   res.json({ msg: "Logged out" });
 };

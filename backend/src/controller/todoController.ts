@@ -1,14 +1,16 @@
 import { Request, Response } from "express";
 import { TodoList } from "../models/todoModel";
 
+interface AuthRequest extends Request {
+  userId: string;
+}
+
 export const getItems = async (req: Request, res: Response) => {
   try {
+    const { userId } = req as AuthRequest;
     const data = await TodoList.find({
-      //@ts-ignore
-      userId: req.userId,
+      userId,
     });
-
-    console.log(data);
 
     res.status(200).json(data);
   } catch (err) {
@@ -19,11 +21,18 @@ export const getItems = async (req: Request, res: Response) => {
 
 export const addItem = async (req: Request, res: Response) => {
   try {
+    const { userId } = req as AuthRequest;
     const { todo } = req.body;
+
+    const todoExist = await TodoList.findOne({ title: todo, userId });
+    if (todoExist) {
+      res.status(409).json({ msg: "todo already exists" });
+      return;
+    }
+
     const data = await TodoList.create({
       title: todo,
-      //@ts-ignore
-      userId: req.userId,
+      userId,
     });
     res.status(200).json(data);
   } catch (err) {
@@ -35,14 +44,15 @@ export const addItem = async (req: Request, res: Response) => {
 export const checkItem = async (req: Request, res: Response) => {
   try {
     const { id, check } = req.body;
+    const { userId } = req as AuthRequest;
     const todo = await TodoList.findById(id);
     if (!todo) {
       res.status(404).json({ msg: "todo list not found" });
       return;
     }
-    //@ts-ignore
-    if (todo.userId !== req.userId) {
+    if (todo.userId.toString() !== userId) {
       res.status(403).json({ msg: "use have no access to check this Item" });
+      return;
     }
 
     const data = await TodoList.findByIdAndUpdate(
@@ -64,14 +74,15 @@ export const checkItem = async (req: Request, res: Response) => {
 export const editItem = async (req: Request, res: Response) => {
   try {
     const { id, todo } = req.body;
+    const { userId } = req as AuthRequest;
     const todoDetail = await TodoList.findById(id);
     if (!todoDetail) {
       res.status(404).json({ msg: "todo list not found" });
       return;
     }
-    //@ts-ignore
-    if (todoDetail.userId.toString() !== req.userId) {
+    if (todoDetail.userId.toString() !== userId) {
       res.status(403).json({ msg: "use have no access to edit this Item" });
+      return;
     }
     const data = await TodoList.findByIdAndUpdate(
       id,
@@ -92,15 +103,13 @@ export const editItem = async (req: Request, res: Response) => {
 export const deleteItem = async (req: Request, res: Response) => {
   try {
     const { id } = req.body;
-    console.log(id);
+    const { userId } = req as AuthRequest;
     const todo = await TodoList.findById(id);
-    console.log(todo);
     if (!todo) {
       res.status(404).json({ msg: "todo list not found" });
       return;
     }
-    //@ts-ignore
-    if (todo.userId.toString() !== req.userId) {
+    if (todo.userId.toString() !== userId) {
       res.status(403).json({ msg: "use have no access to delete this Item" });
       return;
     }
@@ -115,11 +124,11 @@ export const deleteItem = async (req: Request, res: Response) => {
 
 export const clearItems = async (req: Request, res: Response) => {
   try {
-    await TodoList.deleteMany({});
+    const { userId } = req as AuthRequest;
+    await TodoList.deleteMany({ userId });
     res.status(200).json({ msg: "All Data Delete successfully" });
   } catch (err) {
     console.log("Error Deleting data");
-    console.log(err);
     res.status(500).json({ msg: "Error Deleting Data" });
   }
 };
