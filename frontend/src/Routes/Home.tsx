@@ -222,7 +222,7 @@ function Home() {
   return (
     <>
       <div>
-        <section className=" px-4 m-[8rem_auto_0] bg-white w-[90vw] max-w-[35rem] rounded-sm transition-all duration-300 ease-linear shadow-[0_5px_15px_rgba(0,0,0,.2)]">
+        <section className=" px-4 m-[8rem_auto_0] bg-white w-[90vw] max-w-[42rem] rounded-md transition-all duration-300 ease-linear shadow-[0_5px_15px_rgba(0,0,0,.2)]">
           <div className="flex justify-between items-center py-4">
             <div className="capitalize font-semibold text-lg">
               Welcome {user?.username}
